@@ -1,9 +1,4 @@
-NULL_CHAR = chr(0)
-
-def write_report(report):
-    with open('/dev/hidg0', 'rb+') as fd:
-        fd.write(report.encode())
-
+import time
 keyset = {
 "a": "0x04", # Keyboard a and A
 "b": "0x05", # Keyboard b and B
@@ -33,21 +28,28 @@ keyset = {
 "y": "0x1d", # Keyboard z and Z
 "enter": "0x28",
 "space": "0x2C",
+"backslash": "0x31",
 }
-
-def hex_to_dec(key):
-    intedzser = int(key, 16)    #converts the decimal keys to hexadecimal
-    write_report(NULL_CHAR*2+chr(intedzser)+NULL_CHAR*5)    #writes out, but noextra keys just small characthers and space/enter
-
+numbers = ["0","1","2","3","4","5","6","7","8","9"]
 fbe = open("1.txt","r")
+
+helper = True
+number = ""
 
 for data in fbe:
     for x in data:
-        if x == "\n":
-            hex_to_dec(keyset["enter"])
-        elif x == " ":
-            hex_to_dec(keyset["space"])
+        if x == "\\" and helper == True:
+            helper = False
+        elif x != "\\" and helper == False:
+            print(keyset["backslash"])
+            helper = True
+        elif x == "\\" and helper == False:
+            helper = True
+        elif x in numbers:
+            helper = True
+            number += str(x)
+        elif number != "":
+            time.sleep(int(number))
+            number = ""
         else:
-            hex_to_dec(keyset[x])
-
-write_report(NULL_CHAR*8)   #stops the writing
+            print(x)
